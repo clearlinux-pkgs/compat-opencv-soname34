@@ -5,7 +5,7 @@
 %define keepstatic 1
 Name     : compat-opencv-soname34
 Version  : 3.4.3
-Release  : 76
+Release  : 77
 URL      : https://github.com/opencv/opencv/archive/3.4.3.tar.gz
 Source0  : https://github.com/opencv/opencv/archive/3.4.3.tar.gz
 Summary  : Open Source Computer Vision Library

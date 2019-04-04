@@ -36,7 +36,7 @@ BuildRequires : libva-intel-driver
 BuildRequires : libwebp-dev
 BuildRequires : mesa-dev
 BuildRequires : numpy
-BuildRequires : numpy-legacypython
+BuildRequires : deprecated-numpy-legacypython
 BuildRequires : ocl-icd-dev
 BuildRequires : openblas
 BuildRequires : openjdk

@@ -4,18 +4,19 @@
 #
 %define keepstatic 1
 Name     : compat-opencv-soname34
-Version  : 3.4.3
-Release  : 84
-URL      : https://github.com/opencv/opencv/archive/3.4.3.tar.gz
-Source0  : https://github.com/opencv/opencv/archive/3.4.3.tar.gz
+Version  : 3.4.7
+Release  : 85
+URL      : https://github.com/opencv/opencv/archive/3.4.7.tar.gz
+Source0  : https://github.com/opencv/opencv/archive/3.4.7.tar.gz
 Summary  : Open Source Computer Vision Library
 Group    : Development/Tools
-License  : Apache-2.0 BSD-3-Clause BSD-3-Clause-Clear GPL-2.0 IJG JasPer-2.0 LGPL-2.1 Libpng MIT libtiff
+License  : Apache-2.0 BSD-3-Clause BSD-3-Clause-Clear GPL-2.0 HPND IJG JasPer-2.0 LGPL-2.1 Libpng MIT libtiff
 Requires: compat-opencv-soname34-lib = %{version}-%{release}
 Requires: compat-opencv-soname34-license = %{version}-%{release}
 BuildRequires : apache-ant
 BuildRequires : beautifulsoup4
 BuildRequires : buildreq-cmake
+BuildRequires : buildreq-distutils3
 BuildRequires : buildreq-mvn
 BuildRequires : ccache
 BuildRequires : cmake
@@ -24,6 +25,7 @@ BuildRequires : doxygen
 BuildRequires : eigen-dev
 BuildRequires : gdal-dev
 BuildRequires : glib-dev
+BuildRequires : glibc-dev
 BuildRequires : gstreamer-dev
 BuildRequires : gtk3-dev
 BuildRequires : libX11-dev libICE-dev libSM-dev libXau-dev libXcomposite-dev libXcursor-dev libXdamage-dev libXdmcp-dev libXext-dev libXfixes-dev libXft-dev libXi-dev libXinerama-dev libXi-dev libXmu-dev libXpm-dev libXrandr-dev libXrender-dev libXres-dev libXScrnSaver-dev libXt-dev libXtst-dev libXv-dev libXxf86misc-dev libXxf86vm-dev
@@ -41,12 +43,12 @@ BuildRequires : openjdk
 BuildRequires : openjdk-dev
 BuildRequires : openjdk11-dev
 BuildRequires : pkg-config
-BuildRequires : pkgconfig(clp)
 BuildRequires : pkgconfig(gstreamer-video-1.0)
 BuildRequires : pkgconfig(libpng)
 BuildRequires : protobuf-dev
 BuildRequires : python-dev
 BuildRequires : python3-dev
+BuildRequires : qtbase-dev mesa-dev
 BuildRequires : tbb-dev
 BuildRequires : v4l-utils-dev
 BuildRequires : zlib-dev
@@ -78,7 +80,7 @@ license components for the compat-opencv-soname34 package.
 
 
 %prep
-%setup -q -n opencv-3.4.3
+%setup -q -n opencv-3.4.7
 %patch1 -p1
 
 %build
@@ -86,7 +88,7 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1565229818
+export SOURCE_DATE_EPOCH=1566436213
 mkdir -p clr-build
 pushd clr-build
 export GCC_IGNORE_WERROR=1
@@ -129,7 +131,7 @@ make  %{?_smp_mflags} VERBOSE=1
 popd
 
 %install
-export SOURCE_DATE_EPOCH=1565229818
+export SOURCE_DATE_EPOCH=1566436213
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/compat-opencv-soname34
 cp 3rdparty/cpufeatures/LICENSE %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_cpufeatures_LICENSE
@@ -142,8 +144,10 @@ cp 3rdparty/libjasper/copyright %{buildroot}/usr/share/package-licenses/compat-o
 cp 3rdparty/libjpeg-turbo/LICENSE.md %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_libjpeg-turbo_LICENSE.md
 cp 3rdparty/libpng/LICENSE %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_libpng_LICENSE
 cp 3rdparty/libtiff/COPYRIGHT %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_libtiff_COPYRIGHT
+cp 3rdparty/libwebp/COPYING %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_libwebp_COPYING
 cp 3rdparty/openexr/LICENSE %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_openexr_LICENSE
 cp 3rdparty/protobuf/LICENSE %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_protobuf_LICENSE
+cp 3rdparty/quirc/LICENSE %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_quirc_LICENSE
 cp LICENSE %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/LICENSE
 cp modules/core/3rdparty/SoftFloat/COPYING.txt %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/modules_core_3rdparty_SoftFloat_COPYING.txt
 cp modules/dnn/src/torch/COPYRIGHT.txt %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/modules_dnn_src_torch_COPYRIGHT.txt
@@ -166,6 +170,7 @@ rm -f %{buildroot}/usr/bin/opencv_interactive-calibration
 rm -f %{buildroot}/usr/bin/opencv_traincascade
 rm -f %{buildroot}/usr/bin/opencv_version
 rm -f %{buildroot}/usr/bin/opencv_visualisation
+rm -f %{buildroot}/usr/bin/setup_vars_opencv3.sh
 rm -f %{buildroot}/usr/include/opencv/cv.h
 rm -f %{buildroot}/usr/include/opencv/cv.hpp
 rm -f %{buildroot}/usr/include/opencv/cvaux.h
@@ -182,7 +187,9 @@ rm -f %{buildroot}/usr/include/opencv2/calib3d/calib3d.hpp
 rm -f %{buildroot}/usr/include/opencv2/calib3d/calib3d_c.h
 rm -f %{buildroot}/usr/include/opencv2/core.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/affine.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/async.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/base.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/bindings_utils.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/bufferpool.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/check.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/core.hpp
@@ -226,6 +233,8 @@ rm -f %{buildroot}/usr/include/opencv2/core/cv_cpu_helper.h
 rm -f %{buildroot}/usr/include/opencv2/core/cvdef.h
 rm -f %{buildroot}/usr/include/opencv2/core/cvstd.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/cvstd.inl.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/detail/async_promise.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/detail/exception_ptr.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/directx.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/eigen.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/fast_math.hpp
@@ -233,9 +242,12 @@ rm -f %{buildroot}/usr/include/opencv2/core/hal/hal.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/hal/interface.h
 rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin_avx.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin_avx512.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin_cpp.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin_forward.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin_neon.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin_sse.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin_sse_em.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/hal/intrin_vsx.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/ippasync.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/mat.hpp
@@ -269,12 +281,15 @@ rm -f %{buildroot}/usr/include/opencv2/core/ovx.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/persistence.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/ptr.inl.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/saturate.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/simd_intrinsics.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/softfloat.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/sse_utils.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/traits.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/types.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/types_c.h
 rm -f %{buildroot}/usr/include/opencv2/core/utility.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/utils/allocator_stats.hpp
+rm -f %{buildroot}/usr/include/opencv2/core/utils/allocator_stats.impl.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/utils/filesystem.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/utils/logger.defines.hpp
 rm -f %{buildroot}/usr/include/opencv2/core/utils/logger.hpp
@@ -292,6 +307,7 @@ rm -f %{buildroot}/usr/include/opencv2/dnn/dnn.inl.hpp
 rm -f %{buildroot}/usr/include/opencv2/dnn/layer.details.hpp
 rm -f %{buildroot}/usr/include/opencv2/dnn/layer.hpp
 rm -f %{buildroot}/usr/include/opencv2/dnn/shape_utils.hpp
+rm -f %{buildroot}/usr/include/opencv2/dnn/utils/inference_engine.hpp
 rm -f %{buildroot}/usr/include/opencv2/features2d.hpp
 rm -f %{buildroot}/usr/include/opencv2/features2d/features2d.hpp
 rm -f %{buildroot}/usr/include/opencv2/features2d/hal/interface.h
@@ -406,8 +422,23 @@ rm -f %{buildroot}/usr/include/opencv2/videostab/outlier_rejection.hpp
 rm -f %{buildroot}/usr/include/opencv2/videostab/ring_buffer.hpp
 rm -f %{buildroot}/usr/include/opencv2/videostab/stabilizer.hpp
 rm -f %{buildroot}/usr/include/opencv2/videostab/wobble_suppression.hpp
-rm -f %{buildroot}/usr/lib/python2.7/site-packages/cv2.so
-rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2.cpython-37m-x86_64-linux-gnu.so
+rm -f %{buildroot}/usr/lib/python2.7/site-packages/cv2/__init__.py
+rm -f %{buildroot}/usr/lib/python2.7/site-packages/cv2/config-2.7.py
+rm -f %{buildroot}/usr/lib/python2.7/site-packages/cv2/config.py
+rm -f %{buildroot}/usr/lib/python2.7/site-packages/cv2/load_config_py2.py
+rm -f %{buildroot}/usr/lib/python2.7/site-packages/cv2/load_config_py3.py
+rm -f %{buildroot}/usr/lib/python2.7/site-packages/cv2/python-2.7/cv2.so
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/__init__.py
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/__pycache__/__init__.cpython-37.pyc
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/__pycache__/config-3.7.cpython-37.pyc
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/__pycache__/config.cpython-37.pyc
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/__pycache__/load_config_py2.cpython-37.pyc
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/__pycache__/load_config_py3.cpython-37.pyc
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/config-3.7.py
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/config.py
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/load_config_py2.py
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/load_config_py3.py
+rm -f %{buildroot}/usr/lib/python3.7/site-packages/cv2/python-3.7/cv2.cpython-37m-x86_64-linux-gnu.so
 rm -f %{buildroot}/usr/lib64/haswell/libopencv_calib3d.so
 rm -f %{buildroot}/usr/lib64/haswell/libopencv_core.so
 rm -f %{buildroot}/usr/lib64/haswell/libopencv_dnn.so
@@ -469,17 +500,10 @@ rm -f %{buildroot}/usr/share/OpenCV/lbpcascades/lbpcascade_frontalface.xml
 rm -f %{buildroot}/usr/share/OpenCV/lbpcascades/lbpcascade_frontalface_improved.xml
 rm -f %{buildroot}/usr/share/OpenCV/lbpcascades/lbpcascade_profileface.xml
 rm -f %{buildroot}/usr/share/OpenCV/lbpcascades/lbpcascade_silverware.xml
-rm -f %{buildroot}/usr/share/OpenCV/licenses/SoftFloat-COPYING.txt
-rm -f %{buildroot}/usr/share/OpenCV/licenses/ittnotify-LICENSE.BSD
-rm -f %{buildroot}/usr/share/OpenCV/licenses/ittnotify-LICENSE.GPL
-rm -f %{buildroot}/usr/share/OpenCV/licenses/opencl-headers-LICENSE.txt
-rm -f %{buildroot}/usr/share/OpenCV/licenses/protobuf-LICENSE
-rm -f %{buildroot}/usr/share/OpenCV/licenses/protobuf-README.md
 rm -f %{buildroot}/usr/share/OpenCV/samples/CMakeLists.txt
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/3calibration.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/CMakeLists.txt
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/application_trace.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/autofocus.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/bgfg_segm.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/calibration.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/camshiftdemo.cpp
@@ -496,6 +520,7 @@ rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/demhist.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/detect_blob.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/detect_mser.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/dft.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/digits.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/distrans.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/drawing.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/edge.cpp
@@ -508,20 +533,17 @@ rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/ffilldemo.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/filestorage.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/fitellipse.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/grabcut.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/gstreamer_pipeline.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/image.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/image_alignment.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/image_sequence.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/imagelist_creator.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/imagelist_reader.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/inpaint.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/intelperc_capture.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/kalman.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/kmeans.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/laplace.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/letter_recog.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/lkdemo.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/logistic_regression.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/lsd_lines.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/mask_tmpl.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/matchmethod_orb_akaze_brisk.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/minarea.cpp
@@ -529,18 +551,18 @@ rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/morphology2.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/neural_network.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/npr_demo.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/opencv_version.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/openni_capture.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/pca.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/peopledetect.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/phase_corr.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/points_classifier.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/polar_transforms.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/qrcode.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/segment_objects.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/select3dobj.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/shape_example.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/simd_basic.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/smiledetect.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/squares.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/starter_imagelist.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/stereo_calib.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/stereo_match.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/stitching.cpp
@@ -552,6 +574,11 @@ rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/tree_engine.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/tvl1_optical_flow.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videocapture_basic.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videocapture_camera.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videocapture_gphoto2_autofocus.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videocapture_gstreamer_pipeline.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videocapture_image_sequence.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videocapture_intelperc.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videocapture_openni.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videocapture_starter.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videostab.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/cpp/videowriter_basic.cpp
@@ -580,12 +607,14 @@ rm -f %{buildroot}/usr/share/OpenCV/samples/data/box.png
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/box_in_scene.png
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/building.jpg
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/butterfly.jpg
+rm -f %{buildroot}/usr/share/OpenCV/samples/data/calibration.yml
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/cards.png
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/chessboard.png
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/chicky_512.png
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/data01.xml
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/detect_blob.png
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/digits.png
+rm -f %{buildroot}/usr/share/OpenCV/samples/data/dnn/action_recongnition_kinetics.txt
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/dnn/classification_classes_ILSVRC2012.txt
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/dnn/enet-classes.txt
 rm -f %{buildroot}/usr/share/OpenCV/samples/data/dnn/object_detection_classes_coco.txt
@@ -683,6 +712,7 @@ rm -f %{buildroot}/usr/share/OpenCV/samples/data/vtest.avi
 rm -f %{buildroot}/usr/share/OpenCV/samples/dnn/CMakeLists.txt
 rm -f %{buildroot}/usr/share/OpenCV/samples/dnn/classification.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/dnn/colorization.cpp
+rm -f %{buildroot}/usr/share/OpenCV/samples/dnn/common.hpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/dnn/custom_layers.hpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/dnn/object_detection.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/dnn/openpose.cpp
@@ -692,16 +722,13 @@ rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/CMakeLists.txt
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/alpha_comp.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/bgfg_segm.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/cascadeclassifier.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/cascadeclassifier_nvidia_api.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/farneback_optical_flow.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/generalized_hough.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/hog.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/houghlines.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/morphology.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/multi.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/opengl.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/optical_flow.cpp
-rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/opticalflow_nvidia_api.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/pyrlk_optical_flow.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/stereo_match.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/gpu/stereo_multi.cpp
@@ -781,6 +808,13 @@ rm -f %{buildroot}/usr/share/OpenCV/samples/tapi/squares.cpp
 rm -f %{buildroot}/usr/share/OpenCV/samples/tapi/ufacedetect.cpp
 rm -f %{buildroot}/usr/share/OpenCV/valgrind.supp
 rm -f %{buildroot}/usr/share/OpenCV/valgrind_3rdparty.supp
+rm -f %{buildroot}/usr/share/licenses/opencv3/SoftFloat-COPYING.txt
+rm -f %{buildroot}/usr/share/licenses/opencv3/ittnotify-LICENSE.BSD
+rm -f %{buildroot}/usr/share/licenses/opencv3/ittnotify-LICENSE.GPL
+rm -f %{buildroot}/usr/share/licenses/opencv3/opencl-headers-LICENSE.txt
+rm -f %{buildroot}/usr/share/licenses/opencv3/protobuf-LICENSE
+rm -f %{buildroot}/usr/share/licenses/opencv3/protobuf-README.md
+rm -f %{buildroot}/usr/share/licenses/opencv3/quirc-LICENSE
 
 %files
 %defattr(-,root,root,-)
@@ -788,73 +822,73 @@ rm -f %{buildroot}/usr/share/OpenCV/valgrind_3rdparty.supp
 %files lib
 %defattr(-,root,root,-)
 /usr/lib64/haswell/libopencv_calib3d.so.3.4
-/usr/lib64/haswell/libopencv_calib3d.so.3.4.3
+/usr/lib64/haswell/libopencv_calib3d.so.3.4.7
 /usr/lib64/haswell/libopencv_core.so.3.4
-/usr/lib64/haswell/libopencv_core.so.3.4.3
+/usr/lib64/haswell/libopencv_core.so.3.4.7
 /usr/lib64/haswell/libopencv_dnn.so.3.4
-/usr/lib64/haswell/libopencv_dnn.so.3.4.3
+/usr/lib64/haswell/libopencv_dnn.so.3.4.7
 /usr/lib64/haswell/libopencv_features2d.so.3.4
-/usr/lib64/haswell/libopencv_features2d.so.3.4.3
+/usr/lib64/haswell/libopencv_features2d.so.3.4.7
 /usr/lib64/haswell/libopencv_flann.so.3.4
-/usr/lib64/haswell/libopencv_flann.so.3.4.3
+/usr/lib64/haswell/libopencv_flann.so.3.4.7
 /usr/lib64/haswell/libopencv_highgui.so.3.4
-/usr/lib64/haswell/libopencv_highgui.so.3.4.3
+/usr/lib64/haswell/libopencv_highgui.so.3.4.7
 /usr/lib64/haswell/libopencv_imgcodecs.so.3.4
-/usr/lib64/haswell/libopencv_imgcodecs.so.3.4.3
+/usr/lib64/haswell/libopencv_imgcodecs.so.3.4.7
 /usr/lib64/haswell/libopencv_imgproc.so.3.4
-/usr/lib64/haswell/libopencv_imgproc.so.3.4.3
+/usr/lib64/haswell/libopencv_imgproc.so.3.4.7
 /usr/lib64/haswell/libopencv_ml.so.3.4
-/usr/lib64/haswell/libopencv_ml.so.3.4.3
+/usr/lib64/haswell/libopencv_ml.so.3.4.7
 /usr/lib64/haswell/libopencv_objdetect.so.3.4
-/usr/lib64/haswell/libopencv_objdetect.so.3.4.3
+/usr/lib64/haswell/libopencv_objdetect.so.3.4.7
 /usr/lib64/haswell/libopencv_photo.so.3.4
-/usr/lib64/haswell/libopencv_photo.so.3.4.3
+/usr/lib64/haswell/libopencv_photo.so.3.4.7
 /usr/lib64/haswell/libopencv_shape.so.3.4
-/usr/lib64/haswell/libopencv_shape.so.3.4.3
+/usr/lib64/haswell/libopencv_shape.so.3.4.7
 /usr/lib64/haswell/libopencv_stitching.so.3.4
-/usr/lib64/haswell/libopencv_stitching.so.3.4.3
+/usr/lib64/haswell/libopencv_stitching.so.3.4.7
 /usr/lib64/haswell/libopencv_superres.so.3.4
-/usr/lib64/haswell/libopencv_superres.so.3.4.3
+/usr/lib64/haswell/libopencv_superres.so.3.4.7
 /usr/lib64/haswell/libopencv_video.so.3.4
-/usr/lib64/haswell/libopencv_video.so.3.4.3
+/usr/lib64/haswell/libopencv_video.so.3.4.7
 /usr/lib64/haswell/libopencv_videoio.so.3.4
-/usr/lib64/haswell/libopencv_videoio.so.3.4.3
+/usr/lib64/haswell/libopencv_videoio.so.3.4.7
 /usr/lib64/haswell/libopencv_videostab.so.3.4
-/usr/lib64/haswell/libopencv_videostab.so.3.4.3
+/usr/lib64/haswell/libopencv_videostab.so.3.4.7
 /usr/lib64/libopencv_calib3d.so.3.4
-/usr/lib64/libopencv_calib3d.so.3.4.3
+/usr/lib64/libopencv_calib3d.so.3.4.7
 /usr/lib64/libopencv_core.so.3.4
-/usr/lib64/libopencv_core.so.3.4.3
+/usr/lib64/libopencv_core.so.3.4.7
 /usr/lib64/libopencv_dnn.so.3.4
-/usr/lib64/libopencv_dnn.so.3.4.3
+/usr/lib64/libopencv_dnn.so.3.4.7
 /usr/lib64/libopencv_features2d.so.3.4
-/usr/lib64/libopencv_features2d.so.3.4.3
+/usr/lib64/libopencv_features2d.so.3.4.7
 /usr/lib64/libopencv_flann.so.3.4
-/usr/lib64/libopencv_flann.so.3.4.3
+/usr/lib64/libopencv_flann.so.3.4.7
 /usr/lib64/libopencv_highgui.so.3.4
-/usr/lib64/libopencv_highgui.so.3.4.3
+/usr/lib64/libopencv_highgui.so.3.4.7
 /usr/lib64/libopencv_imgcodecs.so.3.4
-/usr/lib64/libopencv_imgcodecs.so.3.4.3
+/usr/lib64/libopencv_imgcodecs.so.3.4.7
 /usr/lib64/libopencv_imgproc.so.3.4
-/usr/lib64/libopencv_imgproc.so.3.4.3
+/usr/lib64/libopencv_imgproc.so.3.4.7
 /usr/lib64/libopencv_ml.so.3.4
-/usr/lib64/libopencv_ml.so.3.4.3
+/usr/lib64/libopencv_ml.so.3.4.7
 /usr/lib64/libopencv_objdetect.so.3.4
-/usr/lib64/libopencv_objdetect.so.3.4.3
+/usr/lib64/libopencv_objdetect.so.3.4.7
 /usr/lib64/libopencv_photo.so.3.4
-/usr/lib64/libopencv_photo.so.3.4.3
+/usr/lib64/libopencv_photo.so.3.4.7
 /usr/lib64/libopencv_shape.so.3.4
-/usr/lib64/libopencv_shape.so.3.4.3
+/usr/lib64/libopencv_shape.so.3.4.7
 /usr/lib64/libopencv_stitching.so.3.4
-/usr/lib64/libopencv_stitching.so.3.4.3
+/usr/lib64/libopencv_stitching.so.3.4.7
 /usr/lib64/libopencv_superres.so.3.4
-/usr/lib64/libopencv_superres.so.3.4.3
+/usr/lib64/libopencv_superres.so.3.4.7
 /usr/lib64/libopencv_video.so.3.4
-/usr/lib64/libopencv_video.so.3.4.3
+/usr/lib64/libopencv_video.so.3.4.7
 /usr/lib64/libopencv_videoio.so.3.4
-/usr/lib64/libopencv_videoio.so.3.4.3
+/usr/lib64/libopencv_videoio.so.3.4.7
 /usr/lib64/libopencv_videostab.so.3.4
-/usr/lib64/libopencv_videostab.so.3.4.3
+/usr/lib64/libopencv_videostab.so.3.4.7
 
 %files license
 %defattr(0644,root,root,0755)
@@ -868,8 +902,10 @@ rm -f %{buildroot}/usr/share/OpenCV/valgrind_3rdparty.supp
 /usr/share/package-licenses/compat-opencv-soname34/3rdparty_libjpeg-turbo_LICENSE.md
 /usr/share/package-licenses/compat-opencv-soname34/3rdparty_libpng_LICENSE
 /usr/share/package-licenses/compat-opencv-soname34/3rdparty_libtiff_COPYRIGHT
+/usr/share/package-licenses/compat-opencv-soname34/3rdparty_libwebp_COPYING
 /usr/share/package-licenses/compat-opencv-soname34/3rdparty_openexr_LICENSE
 /usr/share/package-licenses/compat-opencv-soname34/3rdparty_protobuf_LICENSE
+/usr/share/package-licenses/compat-opencv-soname34/3rdparty_quirc_LICENSE
 /usr/share/package-licenses/compat-opencv-soname34/LICENSE
 /usr/share/package-licenses/compat-opencv-soname34/modules_core_3rdparty_SoftFloat_COPYING.txt
 /usr/share/package-licenses/compat-opencv-soname34/modules_dnn_src_torch_COPYRIGHT.txt

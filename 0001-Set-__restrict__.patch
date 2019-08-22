@@ -68,7 +68,7 @@ index b10bab6..577ab72 100644
 @@ -335,7 +335,7 @@ void sqrt64f(const double* src, double* dst, int len)
  // CV_AVX is not used here, because generated code is faster in non-AVX mode.
  // (tested with disabled IPP on i5-6300U)
- #if (defined _MSC_VER && _MSC_VER >= 1900)
+ #if (defined _MSC_VER && _MSC_VER >= 1900) || defined(__EMSCRIPTEN__)
 -void exp32f(const float *src, float *dst, int n)
 +void exp32f(const float * __restrict__ src, float * __restrict__ dst, int n)
  {

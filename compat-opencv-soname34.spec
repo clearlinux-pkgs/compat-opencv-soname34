@@ -5,7 +5,7 @@
 %define keepstatic 1
 Name     : compat-opencv-soname34
 Version  : 3.4.7
-Release  : 85
+Release  : 86
 URL      : https://github.com/opencv/opencv/archive/3.4.7.tar.gz
 Source0  : https://github.com/opencv/opencv/archive/3.4.7.tar.gz
 Summary  : Open Source Computer Vision Library
@@ -14,6 +14,7 @@ License  : Apache-2.0 BSD-3-Clause BSD-3-Clause-Clear GPL-2.0 HPND IJG JasPer-2.
 Requires: compat-opencv-soname34-lib = %{version}-%{release}
 Requires: compat-opencv-soname34-license = %{version}-%{release}
 BuildRequires : apache-ant
+BuildRequires : apache-maven
 BuildRequires : beautifulsoup4
 BuildRequires : buildreq-cmake
 BuildRequires : buildreq-distutils3
@@ -53,6 +54,7 @@ BuildRequires : tbb-dev
 BuildRequires : v4l-utils-dev
 BuildRequires : zlib-dev
 Patch1: 0001-Set-__restrict__.patch
+Patch2: CVE-2019-15939.patch
 
 %description
 A demo of the Java wrapper for OpenCV with two examples:
@@ -82,13 +84,14 @@ license components for the compat-opencv-soname34 package.
 %prep
 %setup -q -n opencv-3.4.7
 %patch1 -p1
+%patch2 -p1
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1566436213
+export SOURCE_DATE_EPOCH=1567814498
 mkdir -p clr-build
 pushd clr-build
 export GCC_IGNORE_WERROR=1
@@ -131,7 +134,7 @@ make  %{?_smp_mflags} VERBOSE=1
 popd
 
 %install
-export SOURCE_DATE_EPOCH=1566436213
+export SOURCE_DATE_EPOCH=1567814498
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/compat-opencv-soname34
 cp 3rdparty/cpufeatures/LICENSE %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_cpufeatures_LICENSE

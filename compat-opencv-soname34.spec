@@ -5,7 +5,7 @@
 %define keepstatic 1
 Name     : compat-opencv-soname34
 Version  : 3.4.7
-Release  : 88
+Release  : 89
 URL      : https://github.com/opencv/opencv/archive/3.4.7.tar.gz
 Source0  : https://github.com/opencv/opencv/archive/3.4.7.tar.gz
 Summary  : Open Source Computer Vision Library
@@ -57,6 +57,7 @@ BuildRequires : zlib-dev
 %global debug_package %{nil}
 Patch1: 0001-Set-__restrict__.patch
 Patch2: CVE-2019-15939.patch
+Patch3: CVE-2019-14493.patch
 
 %description
 A demo of the Java wrapper for OpenCV with two examples:
@@ -87,13 +88,14 @@ license components for the compat-opencv-soname34 package.
 %setup -q -n opencv-3.4.7
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1568237999
+export SOURCE_DATE_EPOCH=1568681626
 mkdir -p clr-build
 pushd clr-build
 export GCC_IGNORE_WERROR=1
@@ -112,6 +114,7 @@ export CXXFLAGS_USE="$CXXFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofil
 %cmake .. -DWITH_FFMPEG=OFF -DWITH_1394=OFF -DWITH_GSTREAMER=ON -DWITH_IPP=OFF -DWITH_JASPER=OFF -DWITH_WEBP=ON -DWITH_OPENEXR=OFF -DWITH_TIFF=OFF -DENABLE_SSE42=ON  -DWITH_TBB=ON -DWITH_OPENMP=ON -DWITH_VA=ON -DCMAKE_BUILD_TYPE=ReleaseWithDebInfo -DWITH_GSTREAMER=1 -DINSTALL_PYTHON_EXAMPLES=1  -DCPU_DISPATCH=AVX,AVX2,AVX512_SKX -DLIB_SUFFIX= -DBUILD_EXAMPLES=ON -DINSTALL_C_EXAMPLES=ON -DINSTALL_PYTHON_EXAMPLES=ON -DBUILD_opencv_python2=ON -DBUILD_opencv_python3=ON -DBUILD_JAVA=ON
 CFLAGS="${CFLAGS_GENERATE}" CXXFLAGS="${CXXFLAGS_GENERATE}" FFLAGS="${FFLAGS_GENERATE}" FCFLAGS="${FCFLAGS_GENERATE}"
 make  %{?_smp_mflags} VERBOSE=1
+
 bin/opencv_perf_core ||:
 bin/opencv_perf_imgproc ||:
 bin/opencv_perf_dnn ||:
@@ -136,7 +139,7 @@ make  %{?_smp_mflags} VERBOSE=1
 popd
 
 %install
-export SOURCE_DATE_EPOCH=1568237999
+export SOURCE_DATE_EPOCH=1568681626
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/compat-opencv-soname34
 cp 3rdparty/cpufeatures/LICENSE %{buildroot}/usr/share/package-licenses/compat-opencv-soname34/3rdparty_cpufeatures_LICENSE

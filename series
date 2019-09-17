@@ -15,3 +15,4 @@
 0001-Set-__restrict__.patch
 #0004-Do-not-scan-for-python2-support.patch
 CVE-2019-15939.patch
+CVE-2019-14493.patch
